@@ -3,7 +3,7 @@
   "name": "Request Chain Recorder",
   "version": "1.0",
   "description": "Capture, save, and replay HTTP request chains",
-  "permissions": ["webRequest", "webRequestBlocking", "storage", "tabs", "activeTab", "scripting"],
+  "permissions": ["webRequest", "storage", "tabs", "activeTab", "scripting"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"

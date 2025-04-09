@@ -11,7 +11,7 @@ chrome.storage.local.get(["savedChains"], (result) => {
   }
 })
 
-// Listen for network requests
+// Listen for network requests (non-blocking in Manifest V3)
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (isRecording && details.type === "main_frame") {
@@ -34,7 +34,8 @@ chrome.webRequest.onBeforeRequest.addListener(
         request: request,
       })
     }
-    return { cancel: false }
+    // Note: We can't modify the request in Manifest V3 with webRequest
+    // We're just observing it
   },
   { urls: ["<all_urls>"] },
   ["requestBody"],
@@ -53,24 +54,41 @@ chrome.webRequest.onCompleted.addListener(
 
       // Take a screenshot if it's a main frame request
       if (details.type === "main_frame") {
-        chrome.tabs.captureVisibleTab(details.tabId, { format: "png" }, (dataUrl) => {
-          request.screenshot = dataUrl
+        // Wait a bit for the page to render
+        setTimeout(() => {
+          chrome.tabs.get(details.tabId, (tab) => {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError)
+              return
+            }
 
-          // Update the request in the map
-          requestMap.set(details.requestId, request)
+            if (tab && tab.active) {
+              chrome.tabs.captureVisibleTab(tab.windowId, { format: "png" }, (dataUrl) => {
+                if (chrome.runtime.lastError) {
+                  console.error(chrome.runtime.lastError)
+                  return
+                }
 
-          // Update the request in the current chain
-          const index = currentChain.findIndex((req) => req.id === details.requestId)
-          if (index !== -1) {
-            currentChain[index] = request
-          }
+                request.screenshot = dataUrl
 
-          // Notify popup about the updated request
-          chrome.runtime.sendMessage({
-            action: "requestUpdated",
-            request: request,
+                // Update the request in the map
+                requestMap.set(details.requestId, request)
+
+                // Update the request in the current chain
+                const index = currentChain.findIndex((req) => req.id === details.requestId)
+                if (index !== -1) {
+                  currentChain[index] = request
+                }
+
+                // Notify popup about the updated request
+                chrome.runtime.sendMessage({
+                  action: "requestUpdated",
+                  request: request,
+                })
+              })
+            }
           })
-        })
+        }, 1000) // Wait 1 second for page to render
       }
     }
   },
