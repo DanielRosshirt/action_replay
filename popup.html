@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Request Chain Recorder</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Request Chain Recorder</h1>
+      <div class="tabs">
+        <button id="tab-current" class="tab-button active">Current Chain</button>
+        <button id="tab-saved" class="tab-button">Saved Chains</button>
+        <button id="tab-history" class="tab-button">History</button>
+      </div>
+    </header>
+    
+    <main>
+      <div id="current-chain" class="tab-content active">
+        <div class="controls">
+          <button id="start-recording" class="button primary">Start Recording</button>
+          <button id="stop-recording" class="button danger" disabled>Stop Recording</button>
+          <button id="save-chain" class="button" disabled>Save Chain</button>
+          <button id="clear-chain" class="button" disabled>Clear</button>
+        </div>
+        
+        <div id="recording-status" class="status">Not recording</div>
+        
+        <div id="current-requests" class="request-list">
+          <div class="empty-state">No requests recorded yet</div>
+        </div>
+      </div>
+      
+      <div id="saved-chains" class="tab-content">
+        <div id="chains-list" class="chains-container">
+          <div class="empty-state">No saved chains</div>
+        </div>
+      </div>
+      
+      <div id="request-history" class="tab-content">
+        <div id="history-list" class="request-list">
+          <div class="empty-state">No request history</div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
